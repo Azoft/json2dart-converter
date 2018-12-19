@@ -16,6 +16,8 @@ public class Json2DartForm {
     public RSyntaxTextArea editor;
     public JButton generateButton;
     public JCheckBox finalFields;
+    public JTextField fileName;
+    public JLabel fileNameLabel;
 
     private OnGenerateClicked listener;
 
@@ -24,6 +26,7 @@ public class Json2DartForm {
         generateButton.addActionListener(action -> {
             if (this.listener != null) {
                 this.listener.onClicked(
+                    fileName != null ? fileName.getText() : "response",
                     editor != null ? editor.getText() : "",
                     finalFields != null && finalFields.isSelected()
                 );
@@ -61,19 +64,22 @@ public class Json2DartForm {
     private void $$$setupUI$$$() {
         createUIComponents();
         rootView = new JPanel();
-        rootView.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
-        rootView.setPreferredSize(new Dimension(300, 300));
+        rootView.setLayout(new GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
+        rootView.setPreferredSize(new Dimension(500, 500));
         final JScrollPane scrollPane1 = new JScrollPane();
-        rootView.add(scrollPane1, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        rootView.add(scrollPane1, new GridConstraints(0, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         scrollPane1.setViewportView(editor);
         generateButton = new JButton();
         generateButton.setText("Generate");
-        rootView.add(generateButton, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer1 = new Spacer();
-        rootView.add(spacer1, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        rootView.add(generateButton, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         finalFields = new JCheckBox();
-        finalFields.setText("make fields final");
+        finalFields.setText("Make fields final");
         rootView.add(finalFields, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        fileName = new JTextField();
+        rootView.add(fileName, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        fileNameLabel = new JLabel();
+        fileNameLabel.setText("Root file name:");
+        rootView.add(fileNameLabel, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
@@ -84,7 +90,7 @@ public class Json2DartForm {
     }
 
     public interface OnGenerateClicked {
-        void onClicked(String json, Boolean finalFields);
+        void onClicked(String fileName, String json, Boolean finalFields);
     }
 
 }

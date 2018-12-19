@@ -3,9 +3,11 @@ package com.azoft.json2dart
 
 import com.azoft.json2dart.generator.DartClassGenerator
 import com.azoft.json2dart.view.Json2DartForm
+import com.intellij.ide.projectView.ProjectView
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
@@ -18,18 +20,25 @@ class JsonToDartAction : AnAction("Convert json to dart") {
         actionEvent?.let { event ->
             DialogBuilder().apply {
                 val form = Json2DartForm()
-                form.setOnGenerateListener { json, finalFields ->
+                form.setOnGenerateListener { fileName, json, finalFields ->
                     ProgressManager.getInstance().run(
                         object : Task.Backgroundable(
                             event.project, "Dart file generating", false
                         ) {
-                            override fun run(p0: ProgressIndicator) {
-                                DartClassGenerator().generateFromJson(
-                                    json,
-                                    File(actionEvent.getData(CommonDataKeys.VIRTUAL_FILE)?.path),
-                                    "Response",
+                            override fun run(indicator: ProgressIndicator) {
+                                window.dispose()
+                                try {
+                                    DartClassGenerator().generateFromJson(
+                                        json,
+                                        File(actionEvent.getData(CommonDataKeys.VIRTUAL_FILE)?.path),
+                                        fileName.takeIf { it.isNotBlank() } ?: "response",
                                         finalFields
-                                )
+                                    )
+                                } finally {
+                                    indicator.stop()
+                                    ProjectView.getInstance(event.project).refresh()
+                                    event.getData(LangDataKeys.VIRTUAL_FILE)?.refresh(false, true)
+                                }
                             }
                         }
                     )
