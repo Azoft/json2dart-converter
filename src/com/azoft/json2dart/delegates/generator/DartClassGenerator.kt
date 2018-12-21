@@ -137,8 +137,7 @@ class DartClassGenerator {
 
     private fun extractPackageName(dir: File): String {
         val absolutePath = dir.absolutePath
-        // There is should be os check
-        val splitted = absolutePath.split("\\")
+        val splitted = absolutePath.split(if (isWindows()) "\\" else "/")
         val libIndex = splitted.indexOf("lib")
         val fold = splitted
             .subList(libIndex + 1, splitted.size)

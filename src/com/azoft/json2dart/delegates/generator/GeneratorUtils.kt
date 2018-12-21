@@ -13,3 +13,6 @@ fun toSneakCase(value: String): String {
         }
     }.toString()
 }
+
+fun isWindows(): Boolean =
+    System.getProperty("os.name").contains("Windows")
