@@ -139,6 +139,9 @@ class DartClassGenerator {
         val absolutePath = dir.absolutePath
         val splitted = absolutePath.split(if (isWindows()) "\\" else "/")
         val libIndex = splitted.indexOf("lib")
+        if (libIndex == -1) {
+            throw NotAFlutterProject()
+        }
         val fold = splitted
             .subList(libIndex + 1, splitted.size)
             .fold(StringBuilder()) { builder, s -> builder.append(s).append("/") }

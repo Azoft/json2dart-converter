@@ -5,7 +5,7 @@
   <vendor email="v.schukin@azoft.com" url="https://www.azoft.com/">Azoft Ltd.</vendor>
 
   <description><![CDATA[
-      Plugin for dart data classes generating from a json
+      Plugin for dart data classes generating from a json for a flutter project.
     ]]></description>
 
   <change-notes><![CDATA[
