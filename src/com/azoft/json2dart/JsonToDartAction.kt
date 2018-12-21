@@ -21,12 +21,12 @@ class JsonToDartAction : AnAction("Convert json to dart") {
             DialogBuilder().apply {
                 val form = Json2DartForm()
                 form.setOnGenerateListener { fileName, json, finalFields ->
+                    window.dispose()
                     ProgressManager.getInstance().run(
                         object : Task.Backgroundable(
                             event.project, "Dart file generating", false
                         ) {
                             override fun run(indicator: ProgressIndicator) {
-                                window.dispose()
                                 try {
                                     DartClassGenerator().generateFromJson(
                                         json,
