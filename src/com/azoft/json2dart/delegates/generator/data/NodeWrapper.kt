@@ -1,5 +1,7 @@
-package com.azoft.json2dart.delegates.generator
+package com.azoft.json2dart.delegates.generator.data
 
+import com.azoft.json2dart.delegates.generator.toClassName
+import com.azoft.json2dart.delegates.generator.toSneakCase
 import com.fasterxml.jackson.databind.JsonNode
 
 data class NodeWrapper(

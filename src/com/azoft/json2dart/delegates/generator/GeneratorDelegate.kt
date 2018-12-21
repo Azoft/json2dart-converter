@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import java.io.File
+import java.io.IOException
 
 class GeneratorDelegate(
     private val messageDelegate: MessageDelegate = MessageDelegate()
@@ -29,7 +30,10 @@ class GeneratorDelegate(
                         )
                         messageDelegate.showMessage("Dart class has been generated")
                     } catch (e: Throwable) {
-                        messageDelegate.onException(e)
+                        when(e) {
+                            is IOException -> messageDelegate.onException(FileIOException())
+                            else -> messageDelegate.onException(e)
+                        }
                     } finally {
                         indicator.stop()
                         ProjectView.getInstance(event.project).refresh()

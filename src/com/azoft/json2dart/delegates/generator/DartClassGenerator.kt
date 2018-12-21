@@ -1,5 +1,7 @@
 package com.azoft.json2dart.delegates.generator
 
+import com.azoft.json2dart.delegates.generator.data.NodeInfo
+import com.azoft.json2dart.delegates.generator.data.NodeWrapper
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -12,9 +14,13 @@ class DartClassGenerator {
     fun generateFromJson(source: String, destiny: File, rootName: String, isFinal: Boolean) {
         val nodesToProcessStack = Stack<NodeWrapper>()
 
-        nodesToProcessStack.add(
-            NodeWrapper(jacksonObjectMapper().readTree(source), rootName)
-        )
+        try {
+            nodesToProcessStack.add(
+                NodeWrapper(jacksonObjectMapper().readTree(source), rootName)
+            )
+        } catch (e: Exception) {
+            throw SyntaxException()
+        }
 
         val packageTemplate = extractPackageName(destiny)
         val finalMode = if (isFinal) "final " else ""
