@@ -1,4 +1,4 @@
-package com.azoft.json2dart.generator
+package com.azoft.json2dart.delegates.generator
 
 import com.fasterxml.jackson.databind.JsonNode
 

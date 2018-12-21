@@ -1,4 +1,4 @@
-package com.azoft.json2dart.generator
+package com.azoft.json2dart.delegates.generator
 
 data class NodeInfo(
     val stringRepresentation: String,

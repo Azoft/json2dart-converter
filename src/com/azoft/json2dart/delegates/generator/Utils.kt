@@ -1,4 +1,4 @@
-package com.azoft.json2dart.generator
+package com.azoft.json2dart.delegates.generator
 
 fun toClassName(value: String) =
     value[0].toUpperCase() + value.slice(1 until value.length)
