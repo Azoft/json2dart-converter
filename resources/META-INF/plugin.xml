@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.azoft.json2dart</id>
   <name>Json2Dart</name>
-  <version>1.0</version>
+  <version>1.0.1</version>
   <vendor email="v.schukin@azoft.com" url="https://www.azoft.com/">Azoft Ltd.</vendor>
 
   <description><![CDATA[
