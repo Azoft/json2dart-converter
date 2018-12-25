@@ -16,7 +16,12 @@ class DartClassGenerator {
 
         try {
             nodesToProcessStack.add(
-                NodeWrapper(jacksonObjectMapper().readTree(source), rootName)
+                NodeWrapper(
+                    node = jacksonObjectMapper().readTree(source),
+                    fieldName = rootName,
+                    sneakCaseName = rootName,
+                    className = extractRootClassName(rootName)
+                )
             )
         } catch (e: Exception) {
             throw SyntaxException()
@@ -151,5 +156,27 @@ class DartClassGenerator {
     private fun FileOutputStream.writeText(text: String): FileOutputStream {
         write(text.toByteArray(Charsets.UTF_8))
         return this
+    }
+
+    private fun extractRootClassName(rootFileName: String): String {
+        var needUp = true
+        val builder = StringBuilder()
+        val i = rootFileName.iterator()
+        var element: Char
+
+        while (i.hasNext()) {
+            element = i.nextChar()
+            if (element == '_') {
+                needUp = true
+                continue
+            }
+            if (needUp) {
+                element = element.toUpperCase()
+                needUp = false
+            }
+
+            builder.append(element)
+        }
+        return builder.toString()
     }
 }
