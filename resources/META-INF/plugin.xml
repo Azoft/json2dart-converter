@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.azoft.json2dart</id>
   <name>Json2Dart</name>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <vendor email="v.schukin@azoft.com" url="https://www.azoft.com/">Azoft Ltd.</vendor>
 
   <description><![CDATA[
@@ -9,7 +9,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      First version
+      Move action to "New" group
     ]]>
   </change-notes>
 
@@ -27,8 +27,8 @@
   </extensions>
 
   <actions>
-    <action class="com.azoft.json2dart.JsonToDartAction" id="com.azoft.json2dart.JsonToDartAction" text="Convert json to dart">
-      <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+    <action class="com.azoft.json2dart.JsonToDartAction" id="com.azoft.json2dart.JsonToDartAction.inNew" text="Convert json to dart">
+      <add-to-group group-id="NewGroup" anchor="last"/>
     </action>
   </actions>
 
