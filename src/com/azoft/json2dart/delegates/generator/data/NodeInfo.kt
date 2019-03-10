@@ -3,7 +3,14 @@ package com.azoft.json2dart.delegates.generator.data
 data class NodeInfo(
     val stringRepresentation: String,
     val node: NodeWrapper?,
-    val mapExtraction: String?
+    val mapDeserialization: String?,
+    val mapSerialization: String?
 ) {
-    constructor(stringRepresentation: String): this(stringRepresentation, null, null)
+    constructor(stringRepresentation: String, name: String):
+        this(
+            stringRepresentation,
+            null,
+            "map[\"$name\"],\n",
+            "\t\tdata['$name'] = $name;\n"
+        )
 }

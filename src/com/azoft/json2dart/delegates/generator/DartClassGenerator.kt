@@ -30,11 +30,12 @@ class DartClassGenerator {
         val packageTemplate = extractPackageName(destiny)
         val finalMode = if (isFinal) "final " else ""
         var nodeWrapper: NodeWrapper
+        var nodeInfo: NodeInfo
         var buffer: FileOutputStream
         var target: FileOutputStream
         var constructorStringBuilder: StringBuilder
+        var serializatorStringBuilder: StringBuilder
         val importsList = mutableListOf<String>()
-        var valueFromMap: String
         var bufferFile: File
 
         while (nodesToProcessStack.isNotEmpty()) {
@@ -43,27 +44,30 @@ class DartClassGenerator {
             buffer = FileOutputStream(bufferFile)
             target = FileOutputStream(File(destiny, "${nodeWrapper.sneakCaseName}.dart"))
             constructorStringBuilder = createConstructorStart(nodeWrapper)
+            serializatorStringBuilder = createSerializatorStart()
 
             buffer.writeText("\nclass ${nodeWrapper.className} {\n\n")
             try {
                 nodeWrapper.node?.fields()?.forEach {
-                    valueFromMap = "map[\"${it.key}\"],\n"
-                    processNode(buffer, it.value, it.key, finalMode)?.let { nodeInfo ->
-                        nodeInfo.node?.apply {
-                            nodesToProcessStack.add(this)
-                            target.writeText("import '$packageTemplate$sneakCaseName.dart';\n")
-                        }
-
-                        nodeInfo.mapExtraction?.let { extraction ->
-                            valueFromMap = extraction
-                        }
+                    nodeInfo = processNode(buffer, it.value, it.key, finalMode)
+                    nodeInfo.node?.apply {
+                        nodesToProcessStack.add(this)
+                        target.writeText("import '$packageTemplate$sneakCaseName.dart';\n")
                     }
-                    constructorStringBuilder.append("    ${it.key} = $valueFromMap")
+                    serializatorStringBuilder.append(nodeInfo.mapSerialization)
+                    constructorStringBuilder.append("\t\t${it.key} = ${nodeInfo.mapDeserialization}")
                 }
+
                 constructorStringBuilder.apply {
                     deleteCharAt(length - 1).deleteCharAt(length - 1).append(";\n")
                 }
-                buffer.writeText(constructorStringBuilder.toString()).writeText("\n}")
+                serializatorStringBuilder
+                    .append("\t\treturn data;\n")
+                    .append("\t}\n")
+
+                buffer.writeText(constructorStringBuilder.toString()).writeText("\n")
+                buffer.writeText(serializatorStringBuilder.toString())
+                buffer.writeText("}")
                 buffer.close()
 
                 mergeBufferAndTarget(target, bufferFile)
@@ -77,7 +81,7 @@ class DartClassGenerator {
 
     private fun processNode(
         fout: FileOutputStream, node: JsonNode, name: String, finalMode: String
-    ): NodeInfo? {
+    ): NodeInfo {
         val nodeInfo = extractNodeInfo(node, name)
         fout.writeText("  $finalMode${nodeInfo.stringRepresentation} $name;\n")
         return nodeInfo
@@ -86,49 +90,50 @@ class DartClassGenerator {
     private fun extractNodeInfo(node: JsonNode, name: String): NodeInfo {
         return when {
             node.isDouble || node.isFloat || node.isBigDecimal ->
-                NodeInfo("double")
+                NodeInfo("double", name)
 
             node.isShort || node.isInt || node.isLong || node.isBigInteger ->
-                NodeInfo("int")
+                NodeInfo("int", name)
 
             node.isBoolean ->
-                NodeInfo("bool")
+                NodeInfo("bool", name)
 
             node.isTextual ->
-                NodeInfo("String")
+                NodeInfo("String", name)
 
             node.isArray ->
                 extractArrayData(node as ArrayNode, name)
 
             node.isObject ->
-                NodeWrapper(node, name).let {
-                    NodeInfo(it.className, it, "${it.className}.fromJsonMap(map[\"${it.fieldName}\"]),\n")
-                }
+                NodeWrapper(node, name).toObjectNodeInfo()
 
-            else -> NodeInfo("Object")
+            else -> NodeInfo("Object", name)
         }
     }
 
     private fun extractArrayData(node: ArrayNode, name: String): NodeInfo {
         val iterator = node.iterator()
         if (!iterator.hasNext()) {
-            return NodeInfo("List<Object>")
+            return NodeInfo("List<Object>", name)
         }
         val elementInfo = extractNodeInfo(iterator.next(), name)
         return NodeInfo(
             "List<${elementInfo.stringRepresentation}>",
             elementInfo.node,
-            if (elementInfo.node != null) {
-                "List<${elementInfo.node.className}>.from(map[\"${elementInfo.node.fieldName}\"].map((it) => ${elementInfo.node.className}.fromJsonMap(it))),\n"
-            } else {
-                "List<${elementInfo.stringRepresentation}>.from(map[\"$name\"]),\n"
-            }
+            elementInfo.buildListDeserialization(name),
+            elementInfo.buildListSerialization(name)
         )
     }
 
     private fun createConstructorStart(nodeWrapper: NodeWrapper) =
         StringBuilder()
-            .append("\n  ${nodeWrapper.className}.fromJsonMap(Map<String, dynamic> map): \n")
+            .append("\n\t${nodeWrapper.className}.fromJsonMap(Map<String, dynamic> map): \n")
+
+
+    private fun createSerializatorStart() =
+        StringBuilder()
+            .append("\tMap<String, dynamic> toJson() {\n")
+            .append("\t\tfinal Map<String, dynamic> data = new Map<String, dynamic>();\n")
 
     private fun mergeBufferAndTarget(targetStream: FileOutputStream, bufferFile: File) {
         BufferedReader(FileReader(bufferFile)).useLines { lines ->
@@ -157,6 +162,34 @@ class DartClassGenerator {
         write(text.toByteArray(Charsets.UTF_8))
         return this
     }
+
+    private fun NodeWrapper.toObjectNodeInfo(): NodeInfo {
+        val field = this.fieldName
+        return NodeInfo(
+            className,
+            this,
+            "$className.fromJsonMap(map[\"$fieldName\"]),\n",
+            "\t\tdata['$field'] = $field == null ? null : $field.toJson();\n"
+        )
+    }
+
+    private fun NodeInfo.buildListDeserialization(rawName: String) =
+        if (node != null) {
+            "List<${node.className}>.from(map[\"${node.fieldName}\"]" +
+                ".map((it) => ${node.className}.fromJsonMap(it))),\n"
+        } else {
+            "List<$stringRepresentation>.from(map[\"$rawName\"]),\n"
+        }
+
+    private fun NodeInfo.buildListSerialization(rawName: String) =
+        if (node != null) {
+            "\t\tdata['$rawName'] = ${node.fieldName} != null ? \n" +
+                "\t\t\tthis.${node.fieldName}.map((v) => v.toJson()).toList()\n" +
+                "\t\t\t: null;\n"
+        } else {
+            "\t\tdata['$rawName'] = $rawName;\n"
+        }
+
 
     private fun extractRootClassName(rootFileName: String): String {
         var needUp = true
