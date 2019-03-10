@@ -12,19 +12,17 @@ class JsonToDartAction(
     private val generatorDelegate: GeneratorDelegate = GeneratorDelegate()
 ) : AnAction("Convert json to dart") {
 
-    override fun actionPerformed(actionEvent: AnActionEvent?) {
-        actionEvent?.let { event ->
-            DialogBuilder().apply {
-                val form = Json2DartForm()
-                form.setOnGenerateListener { fileName, json, finalFields ->
-                    window.dispose()
-                    generatorDelegate.runGeneration(event, fileName, json, finalFields)
-                }
-                setCenterPanel(form.rootView)
-                setTitle("Json2Dart")
-                removeAllActions()
-                show()
+    override fun actionPerformed(event: AnActionEvent) {
+        DialogBuilder().apply {
+            val form = Json2DartForm()
+            form.setOnGenerateListener { fileName, json, finalFields ->
+                window.dispose()
+                generatorDelegate.runGeneration(event, fileName, json, finalFields)
             }
+            setCenterPanel(form.rootView)
+            setTitle("Json2Dart")
+            removeAllActions()
+            show()
         }
     }
 
