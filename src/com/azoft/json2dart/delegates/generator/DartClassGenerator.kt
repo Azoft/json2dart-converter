@@ -12,30 +12,14 @@ import java.util.*
 class DartClassGenerator {
 
     fun generateFromJson(source: String, destiny: File, rootName: String, isFinal: Boolean) {
-        val nodesToProcessStack = Stack<NodeWrapper>()
-
-        try {
-            nodesToProcessStack.add(
-                NodeWrapper(
-                    node = jacksonObjectMapper().readTree(source),
-                    fieldName = rootName,
-                    sneakCaseName = rootName,
-                    className = extractRootClassName(rootName)
-                )
-            )
-        } catch (e: Exception) {
-            throw SyntaxException()
-        }
-
+        val nodesToProcessStack = initStack(source, rootName)
         val packageTemplate = extractPackageName(destiny)
         val finalMode = if (isFinal) "final " else ""
         var nodeWrapper: NodeWrapper
-        var nodeInfo: NodeInfo
         var buffer: FileOutputStream
         var target: FileOutputStream
-        var constructorStringBuilder: StringBuilder
-        var serializatorStringBuilder: StringBuilder
-        val importsList = mutableListOf<String>()
+        var constructorBuilder: StringBuilder
+        var serializatorBuilder: StringBuilder
         var bufferFile: File
 
         while (nodesToProcessStack.isNotEmpty()) {
@@ -43,40 +27,67 @@ class DartClassGenerator {
             bufferFile = File(destiny, "__${nodeWrapper.sneakCaseName}.dart")
             buffer = FileOutputStream(bufferFile)
             target = FileOutputStream(File(destiny, "${nodeWrapper.sneakCaseName}.dart"))
-            constructorStringBuilder = createConstructorStart(nodeWrapper)
-            serializatorStringBuilder = createSerializatorStart()
+            constructorBuilder = createConstructorStart(nodeWrapper)
+            serializatorBuilder = createSerializatorStart()
 
             buffer.writeText("\nclass ${nodeWrapper.className} {\n\n")
             try {
-                nodeWrapper.node?.fields()?.forEach {
-                    nodeInfo = processNode(buffer, it.value, it.key, finalMode)
-                    nodeInfo.node?.apply {
-                        nodesToProcessStack.add(this)
-                        target.writeText("import '$packageTemplate$sneakCaseName.dart';\n")
+                nodeWrapper.node?.fields()?.forEach { (name, node) ->
+                    processNode(buffer, node, name, finalMode).let { nodeInfo ->
+                        nodeInfo.node?.apply {
+                            nodesToProcessStack.add(this)
+                            target.writeText("import '$packageTemplate$sneakCaseName.dart';\n")
+                        }
+                        serializatorBuilder.append(nodeInfo.mapSerialization)
+                        constructorBuilder.append("\t\t$name = ${nodeInfo.mapDeserialization}")
                     }
-                    serializatorStringBuilder.append(nodeInfo.mapSerialization)
-                    constructorStringBuilder.append("\t\t${it.key} = ${nodeInfo.mapDeserialization}")
                 }
 
-                constructorStringBuilder.apply {
-                    deleteCharAt(length - 1).deleteCharAt(length - 1).append(";\n")
-                }
-                serializatorStringBuilder
-                    .append("\t\treturn data;\n")
-                    .append("\t}\n")
-
-                buffer.writeText(constructorStringBuilder.toString()).writeText("\n")
-                buffer.writeText(serializatorStringBuilder.toString())
-                buffer.writeText("}")
-                buffer.close()
-
-                mergeBufferAndTarget(target, bufferFile)
+                completeGenerating(buffer, bufferFile, target, constructorBuilder, serializatorBuilder)
             } finally {
                 buffer.close()
                 target.close()
             }
-            importsList.clear()
         }
+    }
+
+    private fun initStack(source: String, rootName: String) =
+        Stack<NodeWrapper>().apply {
+            try {
+                add(
+                    NodeWrapper(
+                        node = jacksonObjectMapper().readTree(source),
+                        fieldName = rootName,
+                        sneakCaseName = rootName,
+                        className = extractRootClassName(rootName)
+                    )
+                )
+            } catch (e: Exception) {
+                throw SyntaxException()
+            }
+        }
+
+
+    private fun completeGenerating(
+        buffer: FileOutputStream,
+        bufferFile: File,
+        target: FileOutputStream,
+        constructorBuilder: StringBuilder,
+        serializatorBuilder: StringBuilder
+    ) {
+        constructorBuilder.apply {
+            deleteCharAt(length - 1).deleteCharAt(length - 1).append(";\n")
+        }
+        serializatorBuilder
+            .append("\t\treturn data;\n")
+            .append("\t}\n")
+
+        buffer.writeText(constructorBuilder.toString()).writeText("\n")
+        buffer.writeText(serializatorBuilder.toString())
+        buffer.writeText("}")
+        buffer.close()
+
+        mergeBufferAndTarget(target, bufferFile)
     }
 
     private fun processNode(
@@ -147,7 +158,7 @@ class DartClassGenerator {
 
     private fun extractPackageName(dir: File): String {
         val absolutePath = dir.absolutePath
-        val splitted = absolutePath.split(if (isWindows()) "\\" else "/")
+        val splitted = absolutePath.split(System.getProperty("file.separator"))
         val libIndex = splitted.indexOf("lib")
         if (libIndex == -1) {
             throw NotAFlutterProject()
