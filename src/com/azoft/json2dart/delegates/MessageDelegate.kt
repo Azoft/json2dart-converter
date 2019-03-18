@@ -13,6 +13,9 @@ class MessageDelegate {
     private val logGroup =
         NotificationGroup(GROUP_LOG, NotificationDisplayType.NONE, true)
 
+    private val infoGroup =
+        NotificationGroup(GROUP_LOG, NotificationDisplayType.BALLOON, true)
+
     fun onException(throwable: Throwable) {
         val message = throwable.message ?: "Something went wrong"
         sendNotification(
@@ -25,9 +28,9 @@ class MessageDelegate {
         showMessage(message, "")
     }
 
-    fun log(message: String) {
+    fun sendNotification(message: String) {
         sendNotification(
-            logGroup.createNotification(message, NotificationType.INFORMATION)
+            infoGroup.createNotification(message, NotificationType.INFORMATION)
         )
     }
 

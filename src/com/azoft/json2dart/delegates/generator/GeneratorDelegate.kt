@@ -25,10 +25,10 @@ class GeneratorDelegate(
                         DartClassGenerator().generateFromJson(
                             json,
                             File(event.getData(CommonDataKeys.VIRTUAL_FILE)?.path),
-                            fileName.takeIf { it.isNotBlank() } ?: "response",
+                            fileName.takeIf(String::isNotBlank) ?: "response",
                             finalFields
                         )
-                        messageDelegate.showMessage("Dart class has been generated")
+                        messageDelegate.sendNotification("Dart class has been generated")
                     } catch (e: Throwable) {
                         when(e) {
                             is IOException -> messageDelegate.onException(FileIOException())

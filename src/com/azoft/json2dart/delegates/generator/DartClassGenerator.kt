@@ -35,7 +35,7 @@ class DartClassGenerator {
                 nodeWrapper.node?.fields()?.forEach { (name, node) ->
                     processNode(buffer, node, name, finalMode).let { nodeInfo ->
                         nodeInfo.node?.apply {
-                            nodesToProcessStack.add(this)
+                            nodesToProcessStack.push(this)
                             target.writeText("import '$packageTemplate$sneakCaseName.dart';\n")
                         }
                         serializatorBuilder.append(nodeInfo.mapSerialization)
