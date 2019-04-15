@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
+import com.jgoodies.common.base.Strings.isNotBlank
 import java.io.File
 import java.io.IOException
 
