@@ -1,0 +1,12 @@
+{
+  "int_list": [0, 1, 2],
+  "string_list": ["a", "b", "c"],
+  "double_list": [0.0, 1.0, 2.0],
+  "object_list": [],
+  "class_list": [{
+    "int_field" : 1,
+    "double_field": 1.0,
+    "string_field": "string",
+    "object_field": null
+  }]
+}

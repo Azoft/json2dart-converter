@@ -37,12 +37,9 @@ repositories {
     maven { url 'http://central.maven.org/maven2/' }
 }
 
-sourceSets {
-    main.kotlin.srcDirs += 'src/main/myKotlin'
-    main.java.srcDirs += 'src/main/myJava'
-}
-
 dependencies {
+
+//    testImplementation "junit:junit:4.12"
 
     implementation "com.fifesoft:rsyntaxtextarea:3.0.3"
 
@@ -52,6 +49,11 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVerion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlinVerion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVerion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVerion"
+
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVerion"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVerion"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVerion"
 
 }
