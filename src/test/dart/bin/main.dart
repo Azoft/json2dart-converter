@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:dart/response.dart';
 
-//Future<void> main(List<String> arguments) async {
 main(List<String> arguments)  {
     final response = Response.fromJsonMap(
       jsonDecode(

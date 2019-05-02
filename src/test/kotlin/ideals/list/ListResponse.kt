@@ -3,8 +3,8 @@ package ideals.list
 import com.fasterxml.jackson.annotation.JsonProperty
 import javax.annotation.Generated
 
-@Generated("com.robohorse.robopojogenerator")
-data class Response(
+
+data class ListResponse(
 
 	@field:JsonProperty("double_list")
 	val doubleList: List<Double?>? = null,

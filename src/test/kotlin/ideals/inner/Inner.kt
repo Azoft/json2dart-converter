@@ -3,7 +3,7 @@ package ideals.inner
 import com.fasterxml.jackson.annotation.JsonProperty
 import javax.annotation.Generated
 
-@Generated("com.robohorse.robopojogenerator")
+
 data class Inner(
 
 	@field:JsonProperty("object_field")

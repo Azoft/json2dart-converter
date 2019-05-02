@@ -3,8 +3,8 @@ package ideals.simple
 import com.fasterxml.jackson.annotation.JsonProperty
 import javax.annotation.Generated
 
-@Generated("com.robohorse.robopojogenerator")
-data class Response(
+
+data class SimpleResponse(
 
     @field:JsonProperty("object_field")
     val objectField: Any? = null,
