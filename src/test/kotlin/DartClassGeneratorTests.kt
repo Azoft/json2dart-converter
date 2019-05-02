@@ -115,7 +115,8 @@ class DartClassGeneratorTests {
                 .start()
 
             proc.waitFor(60, TimeUnit.MINUTES)
-            proc.inputStream.bufferedReader().readText()
+            proc.errorStream.bufferedReader().readText().takeIf(String::isNotEmpty)
+                ?: proc.inputStream.bufferedReader().readText()
         } catch(e: IOException) {
             e.printStackTrace()
             null
