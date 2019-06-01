@@ -1,4 +1,4 @@
-import com.azoft.json2dart.delegates.generator.DartClassGenerator
+import com.azoft.json2dart.delegates.generator.old.DartClassGenerator
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import ideals.inner.InnerResponse
 import ideals.list.ListResponse
