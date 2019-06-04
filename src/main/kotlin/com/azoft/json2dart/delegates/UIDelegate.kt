@@ -23,7 +23,6 @@ class UIDelegate {
                     onEnterName(it)
                 }
                 setCenterPanel(form.rootView)
-                setTitle("Json2Dart")
                 removeAllActions()
                 show()
             }
