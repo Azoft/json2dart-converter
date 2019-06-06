@@ -12,11 +12,6 @@ import java.util.concurrent.TimeUnit
 
 class DartClassGeneratorTests {
 
-    private val dartPodoPath = "src/test/dart/lib"
-    private val jsonGeneratedPath = "src/test/resources/generated"
-    private val jsonInitialPath = "src/test/resources/start"
-    private val dartExecutable = "src/test/dart/bin/main.dart"
-
     @Before
     fun before() {
         clearDir(dartPodoPath)
@@ -32,7 +27,7 @@ class DartClassGeneratorTests {
     @Test
     fun testSimpleClassGenerating() {
         generateAndValidate<SimpleResponse>(
-            "$jsonInitialPath/simple_initial.json",
+            "$jsonInitialPath/$simpleJson",
             "$jsonGeneratedPath/simple_initial.json"
         ) {
             assert(it.doubleField == 1.0)
@@ -67,7 +62,7 @@ class DartClassGeneratorTests {
     @Test
     fun testInnerResponse() {
         generateAndValidate<InnerResponse>(
-            "$jsonInitialPath/inner_object_initial.json",
+            "$jsonInitialPath/$innerObjectJson",
             "$jsonGeneratedPath/inner_object_generated.json"
         ) {
             assert(it.inner != null)
