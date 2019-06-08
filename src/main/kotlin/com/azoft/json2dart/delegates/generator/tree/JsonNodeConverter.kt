@@ -15,27 +15,29 @@ class JsonNodeConverter {
         return classNodeMap.values.toList()
     }
 
-    private fun JsonNode.convertNode(name: String, corrector: (Node) -> Node): Node =
+    private fun JsonNode.convertNode(name: String, parent: Node? = null, corrector: (Node) -> Node): Node =
         when {
-            isDouble || isFloat || isBigDecimal -> DoubleNode(name, doubleValue())
+            isDouble || isFloat || isBigDecimal -> DoubleNode(name, doubleValue(), parent)
 
-            isShort || isInt || isLong || isBigInteger -> IntNode(name, intValue())
+            isShort || isInt || isLong || isBigInteger -> IntNode(name, intValue(), parent)
 
-            isBoolean -> BooleanNode(name, booleanValue())
+            isBoolean -> BooleanNode(name, booleanValue(), parent)
 
-            isTextual -> StringNode(name, textValue())
+            isTextual -> StringNode(name, textValue(), parent)
 
             isArray -> ListNode(
                 name,
-                elementAtOrNull(0)?.convertNode(name, corrector) ?: NullNode(name)
+                elementAtOrNull(0)?.convertNode(name, parent, corrector) ?: NullNode(name),
+                parent
             )
 
-            isObject -> corrector(ClassNode(
-                name,
-                fields().asSequence().map { (fieldName, field) ->
-                    field.convertNode(fieldName, corrector)
-                }.toList()
-            ))
+            isObject -> corrector(
+                ClassNode(name = name, parent = parent).apply classNode@ {
+                    childs = fields().asSequence().map { (fieldName, field) ->
+                        field.convertNode(fieldName, this@classNode, corrector)
+                    }.toList()
+                }
+            )
 
             else -> NullNode(name)
         }

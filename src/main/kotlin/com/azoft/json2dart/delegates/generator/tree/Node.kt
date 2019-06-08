@@ -2,7 +2,8 @@ package com.azoft.json2dart.delegates.generator.tree
 
 sealed class Node (val name: String, val parent: Node?, val depth: Int = 0)
 
-class ClassNode(name: String, val childs: List<Node>, parent: Node? = null): Node(name, parent)
+//class ClassNode(name: String, val childs: List<Node>, parent: Node? = null): Node(name, parent)
+class ClassNode(name: String, var childs: List<Node> = listOf(), parent: Node? = null): Node(name, parent)
 
 class NullNode(name: String, parent: Node? = null): Node(name, parent)
 
