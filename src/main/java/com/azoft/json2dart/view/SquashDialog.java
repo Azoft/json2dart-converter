@@ -5,8 +5,6 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class SquashDialog {
     private JButton enterButton;
@@ -19,7 +17,7 @@ public class SquashDialog {
     public SquashDialog() {
         enterButton.addActionListener(e -> {
             if (onEnterListener != null) {
-                onEnterListener.onEnter("");
+                onEnterListener.onEnter("", "");
             }
         });
         donTSquashButton.addActionListener(e -> {
@@ -74,7 +72,7 @@ public class SquashDialog {
     }
 
     public interface OnEnterListener {
-        public void onEnter(String name);
+        public void onEnter(String nameLeft, String nameRight);
     }
 
     public interface OnDontSquashListener {

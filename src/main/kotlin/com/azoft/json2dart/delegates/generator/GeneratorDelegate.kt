@@ -1,7 +1,7 @@
 package com.azoft.json2dart.delegates.generator
 
 import com.azoft.json2dart.delegates.MessageDelegate
-import com.azoft.json2dart.delegates.UIDelegate
+import com.azoft.json2dart.delegates.ui.UIDelegate
 import com.azoft.json2dart.delegates.generator.old.DartClassGenerator
 import com.intellij.ide.projectView.ProjectView
 import com.intellij.openapi.actionSystem.AnActionEvent

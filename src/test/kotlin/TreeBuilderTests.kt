@@ -1,6 +1,8 @@
-import com.azoft.json2dart.delegates.UIDelegate
+import com.azoft.json2dart.delegates.ui.UIDelegate
 import com.azoft.json2dart.delegates.generator.tree.*
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import ideals.CollisionUIDelegate
+import ideals.Match
 import org.junit.Test
 import java.io.File
 
@@ -68,6 +70,40 @@ class TreeBuilderTests {
         }
     }
 
+    @Test
+    fun testCollisionCase() {
+        val firstInnerName = "FirstInner"
+        val secondInnerName = "SecondInner"
+        extractNodes(
+            jsonPath = "$jsonInitialPath/$collisionJson",
+            uiDelegate = CollisionUIDelegate(
+                listOf(
+                    Match("inner", "inner", firstInnerName, secondInnerName)
+                )
+            )
+        ).apply {
+            assert(size == 3)
+            val rootNode =
+                find { rootNameDefault == it.name }
+                    ?: throw Exception("Cannot find root class node")
+
+            rootNode as ClassNode
+            rootNode.containsAllPrimitives()
+
+            val firstInnerNode =
+                rootNode.childs.find { it.name == firstInnerName }
+                    ?: throw Exception("Cannot find first inner class node")
+            firstInnerNode as ClassNode
+
+            val secondInnerNode =
+                firstInnerNode.childs.find { it.name == firstInnerName }
+                    ?: throw Exception("Cannot find second inner class node")
+
+            secondInnerNode as ClassNode
+            secondInnerNode.containsAllPrimitives()
+        }
+    }
+
     private fun extractNodes(
         jsonPath: String,
         rootName: String = rootNameDefault,
@@ -83,5 +119,4 @@ class TreeBuilderTests {
             && childs.find { it is DoubleNode } != null
             && childs.find { it is StringNode } != null
             && childs.find { it is IntNode } != null
-
 }

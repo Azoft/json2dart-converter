@@ -1,0 +1,14 @@
+{
+  "int_field" : 1,
+  "double_field": 1.0,
+  "string_field": "string",
+  "object_field": null,
+  "inner": {
+    "inner": {
+      "int_field" : 1,
+      "double_field": 1.0,
+      "string_field": "string",
+      "object_field": null
+    }
+  }
+}

@@ -1,21 +1,35 @@
 package com.azoft.json2dart.delegates.generator.tree
 
+import com.azoft.json2dart.delegates.ui.IntellijUIDelegate
+import com.azoft.json2dart.delegates.ui.UIDelegate
 import com.fasterxml.jackson.databind.JsonNode
 
 
-class JsonNodeConverter {
+class JsonNodeConverter(
+    private val collisionResolver: AbstractCollisionResolver = AutomaticCollisionResolver()
+) {
 
 
-    fun extractNodes(rootName: String, rootNode: JsonNode): List<Node> {
-        val classNodeMap = mutableMapOf<Int, Node>()
-        rootNode.convertNode(rootName) {
-            classNodeMap[it.hashCode()] = it
-            it
+    fun extractNodes(rootName: String, rootNode: JsonNode, squash: Boolean = false): List<Node> {
+        val classNodeMap = mutableMapOf<String, ClassNode>()
+        rootNode.convertNode(rootName) { newNode ->
+            val oldNode = classNodeMap[newNode.name]
+                ?: return@convertNode newNode.apply { classNodeMap[name] = this }
+
+            val oldName: String? = oldNode.name
+            val (resolvedOld, resolvedNew) = collisionResolver.resove(oldNode, newNode)
+
+            if (oldName != resolvedOld.name) {
+                classNodeMap[resolvedOld.name] = resolvedOld
+            }
+            classNodeMap[resolvedNew.name] = resolvedNew
+
+            return@convertNode resolvedNew
         }
         return classNodeMap.values.toList()
     }
 
-    private fun JsonNode.convertNode(name: String, parent: Node? = null, corrector: (Node) -> Node): Node =
+    private fun JsonNode.convertNode(name: String, parent: Node? = null, corrector: (ClassNode) -> ClassNode): Node =
         when {
             isDouble || isFloat || isBigDecimal -> DoubleNode(name, doubleValue(), parent)
 

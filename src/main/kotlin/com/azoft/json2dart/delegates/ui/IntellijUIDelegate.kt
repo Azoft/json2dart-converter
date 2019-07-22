@@ -1,14 +1,16 @@
-package com.azoft.json2dart.delegates
+package com.azoft.json2dart.delegates.ui
 
 import com.azoft.json2dart.view.SquashDialog
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.ui.DialogBuilder
 
-class UIDelegate {
-    fun showDialogSquash(
+class IntellijUIDelegate : UIDelegate {
+    override fun showDialogSquash(
         firstSample: String,
+        firstName: String,
         secondSample: String,
-        onEnterName: (String) -> Unit,
+        secondName: String,
+        onEnterName: (String, String) -> Unit,
         onNotSquash: () -> Unit
     ) {
         ApplicationManager.getApplication().invokeAndWait {
@@ -18,9 +20,9 @@ class UIDelegate {
                     window.dispose()
                     onNotSquash()
                 }
-                form.setOnEnterListener {
+                form.setOnEnterListener { leftName, rightName ->
                     window.dispose()
-                    onEnterName(it)
+                    onEnterName(leftName, rightName)
                 }
                 setCenterPanel(form.rootView)
                 removeAllActions()
