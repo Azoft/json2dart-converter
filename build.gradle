@@ -28,6 +28,12 @@ intellij {
     pluginName 'json2dart'
 }
 
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ["-XXLanguage:+InlineClasses"]
+    }
+}
+
 group 'org.jetbrains'
 version '1.0.3' // Plugin version
 

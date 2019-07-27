@@ -26,26 +26,26 @@ class NodeTree {
         }
 
         while (nodeQueue.isNotEmpty()) {
-            nodeQueue.first.let queueWhile@ { (name, node) ->
-                node.fields().asSequence()
-                    .mapNotNull { (fieldName, field) ->
-                        (field as? ObjectNode)
-                            ?.let { objectNode ->  NamedJsonNode(fieldName, objectNode) }
-                    }
-                    .firstOrNull()
-                    ?.let { (fieldName, fieldNode) ->
-                        nodeQueue.addFirst(fieldName to fieldNode as ObjectNode)
-                        return@queueWhile
-                    }
-
-                ClassNode(
-                    name,
-                    node.fieldNames().asSequence()
-                        .map { fieldName ->
-                            node[fieldName].toPrimitiveNode(fieldName)
-                        }.toList()
-                )
-            }
+//            nodeQueue.first.let queueWhile@ { (name, node) ->
+//                node.fields().asSequence()
+//                    .mapNotNull { (fieldName, field) ->
+//                        (field as? ObjectNode)
+//                            ?.let { objectNode ->  NamedJsonNode(fieldName, objectNode) }
+//                    }
+//                    .firstOrNull()
+//                    ?.let { (fieldName, fieldNode) ->
+//                        nodeQueue.addFirst(fieldName to fieldNode as ObjectNode)
+//                        return@queueWhile
+//                    }
+//
+//                ClassNode(
+//                    name,
+////                    node.fieldNames().asSequence()
+////                        .map { fieldName ->
+////                            node[fieldName].toPrimitiveNode(fieldName)
+////                        }.toList()
+//                )
+//            }
         }
     }
 

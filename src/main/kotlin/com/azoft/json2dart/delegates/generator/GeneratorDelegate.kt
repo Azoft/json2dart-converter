@@ -3,6 +3,7 @@ package com.azoft.json2dart.delegates.generator
 import com.azoft.json2dart.delegates.MessageDelegate
 import com.azoft.json2dart.delegates.ui.UIDelegate
 import com.azoft.json2dart.delegates.generator.old.DartClassGenerator
+import com.azoft.json2dart.delegates.ui.IntellijUIDelegate
 import com.intellij.ide.projectView.ProjectView
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -15,7 +16,7 @@ import java.io.IOException
 
 class GeneratorDelegate(
     private val messageDelegate: MessageDelegate = MessageDelegate(),
-    private val uiDelegate: UIDelegate = UIDelegate()
+    private val uiDelegate: UIDelegate = IntellijUIDelegate()
 ) {
 
     fun runGeneration(event: AnActionEvent, fileName: String, json: String, finalFields: Boolean) {
