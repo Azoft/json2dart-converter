@@ -1,114 +1,90 @@
 package com.azoft.json2dart.delegates.generator.tree
 
-import kotlin.collections.Map
-
 sealed class Node (
-    val name: String,
-    val parent: VirtualAddress?,
-    val depth: Int = 0
+    var name: String,
+    val parent: Node?,
+    var depth: Int = 0
 ) {
-
-    protected var cachedHashcode: Int? = null
-        get() = field ?: hashCode().also { cachedHashcode = it }
-        set(value) {
-            if (value != null) {
-                return
-            }
-            field = value
-        }
-
-    val virtualAddress by lazy {
-        VirtualAddress(cachedHashcode ?: hashCode())
+    
+    override fun hashCode(): Int {
+        return name.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ClassNode) return false
+        if (other !is Node) return false
 
-        return other.cachedHashcode == cachedHashcode
-    }
+        if (name != other.name) return false
+        if (parent != other.parent) return false
+        if (depth != other.depth) return false
 
-    override fun hashCode(): Int {
-        return name.hashCode()
+        return true
     }
 }
 
 class ClassNode(
     name: String,
-//    childs: List<Node> = listOf(),
-    childs: List<VirtualAddress> = listOf(),
-    parent: VirtualAddress? = null
+    var childs: List<Node> = listOf(),
+    parent: Node? = null
 ): Node(name, parent) {
-
-    var childs: List<VirtualAddress> = childs
-    set(value) {
-        field = value
-        cachedHashcode = null
-    }
-
+    
     override fun hashCode(): Int {
         return 31 * childs.hashCode() + name.hashCode()
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ClassNode) return false
+        if (!super.equals(other)) return false
+
+        if (childs != other.childs) return false
+
+        return true
+    }
 }
 
 
-sealed class ValueNode<T>(name: String, val value: T, parent: VirtualAddress?): Node(name, parent) {
-    protected abstract var typeSalt: Int
+sealed class ValueNode<T>(name: String, val value: T, parent: Node?)
+    : Node(name, parent) {
 
+    protected abstract var typeSalt: Int
+    
     override fun hashCode(): Int {
         return 31 * super.hashCode() + typeSalt
     }
-}
 
-class StringNode(name: String, value: String, parent: VirtualAddress? = null): ValueNode<String>(name, value, parent) {
-    override var typeSalt: Int = 3
-}
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ValueNode<*>) return false
+        if (!super.equals(other)) return false
 
-class DoubleNode(name: String, value: Double, parent: VirtualAddress? = null): ValueNode<Double>(name, value, parent) {
-    override var typeSalt: Int = 5
-}
+        if (value != other.value) return false
+        if (typeSalt != other.typeSalt) return false
 
-class IntNode(name: String, value: Int, parent: VirtualAddress? = null): ValueNode<Int>(name, value, parent) {
-    override var typeSalt: Int = 7
-}
-
-class BooleanNode(name: String, value: Boolean, parent: VirtualAddress? = null): ValueNode<Boolean>(name, value, parent) {
-    override var typeSalt: Int = 11
-}
-
-class ListNode(name: String, value: Node, parent: VirtualAddress? = null): ValueNode<Node>(name, value, parent) {
-    override var typeSalt: Int = 13
-}
-
-class NullNode(name: String, parent: VirtualAddress? = null): ValueNode<Unit>(name, Unit, parent) {
-    override var typeSalt: Int = 17
-}
-
-fun ClassNode.copy(
-    name: String = this.name,
-    childs: List<VirtualAddress> = this.childs,
-    parent: VirtualAddress? = this.parent
-) : ClassNode =
-    ClassNode(name = name, parent = parent, childs = childs)
-
-fun <T> ValueNode<T>.copy(
-    name: String = this.name,
-    value: T = this.value,
-    parent: VirtualAddress? = this.parent
-): ValueNode<*> {
-    return when(this) {
-        is StringNode -> StringNode(name, value as String, parent)
-        is DoubleNode -> DoubleNode(name, value as Double, parent)
-        is IntNode -> IntNode(name, value as Int, parent)
-        is BooleanNode -> BooleanNode(name, value as Boolean, parent)
-        is ListNode -> ListNode(name, value as Node, parent)
-        is NullNode -> NullNode(name, parent)
+        return true
     }
 }
 
-inline class VirtualAddress(val address: Int)
+class StringNode(name: String, value: String, parent: Node? = null): ValueNode<String>(name, value, parent) {
+    override var typeSalt: Int = 3
+}
 
-//inline class VirtualMemory(private val space: Map<VirtualAddress, Node>) {
-inline class VirtualMemory(val space: Map<VirtualAddress, Node>) {
-    public operator fun get(key: VirtualAddress): Node? = space[key]
+class DoubleNode(name: String, value: Double, parent: Node? = null): ValueNode<Double>(name, value, parent) {
+    override var typeSalt: Int = 5
+}
+
+class IntNode(name: String, value: Int, parent: Node? = null): ValueNode<Int>(name, value, parent) {
+    override var typeSalt: Int = 7
+}
+
+class BooleanNode(name: String, value: Boolean, parent: Node? = null): ValueNode<Boolean>(name, value, parent) {
+    override var typeSalt: Int = 11
+}
+
+class ListNode(name: String, value: Node, parent: Node? = null): ValueNode<Node>(name, value, parent) {
+    override var typeSalt: Int = 13
+}
+
+class NullNode(name: String, parent: Node? = null): ValueNode<Unit>(name, Unit, parent) {
+    override var typeSalt: Int = 17
 }

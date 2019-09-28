@@ -2,7 +2,7 @@ package com.azoft.json2dart.delegates.generator.tree
 
 import com.azoft.json2dart.delegates.ui.UIDelegate
 
-typealias ResolvedNodes = Pair<ClassNode, ClassNode>
+typealias ResolvedNodes = Pair<String, String>
 
 abstract class AbstractCollisionResolver {
     abstract fun resolve(existingNode: ClassNode, newNode: ClassNode): ResolvedNodes
