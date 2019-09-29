@@ -1,0 +1,20 @@
+{
+  "int_field" : 1,
+  "double_field": 1.0,
+  "string_field": "string",
+  "object_field": null,
+  "father": {
+    "name": {
+      "first": "John",
+      "last": "Dohn"
+    },
+    "sex": "male"
+  },
+  "mother": {
+    "name": {
+      "first": "Maria",
+      "last": "Tereza"
+    },
+    "sex": "female"
+  }
+}

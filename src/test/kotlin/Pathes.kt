@@ -8,4 +8,5 @@ const val innerObjectJson = "inner_object_initial.json"
 const val simpleJson = "simple_initial.json"
 const val listJson = "list_initial.json"
 const val collisionJson = "collision_initial.json"
+const val squashJson = "squash_initial.json"
 

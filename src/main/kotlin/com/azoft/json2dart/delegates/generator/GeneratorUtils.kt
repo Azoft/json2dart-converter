@@ -15,4 +15,4 @@ fun toSneakCase(value: String): String {
 }
 
 fun isWindows(): Boolean =
-    System.getProperty("os.name").contains("Windows")
+    System.getProperty("os.className").contains("Windows")

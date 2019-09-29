@@ -1,21 +1,22 @@
 package com.azoft.json2dart.delegates.generator.tree
 
 sealed class Node (
-    var name: String,
+    var className: String,
     val parent: Node?,
     var depth: Int = 0
 ) {
+
+    var fieldName: String? = null
     
     override fun hashCode(): Int {
-        return name.hashCode()
+        return className.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Node) return false
 
-        if (name != other.name) return false
-        if (parent != other.parent) return false
+        if (className != other.className) return false
         if (depth != other.depth) return false
 
         return true
@@ -29,13 +30,12 @@ class ClassNode(
 ): Node(name, parent) {
     
     override fun hashCode(): Int {
-        return 31 * childs.hashCode() + name.hashCode()
+        return 31 * childs.hashCode()
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ClassNode) return false
-        if (!super.equals(other)) return false
 
         if (childs != other.childs) return false
 
@@ -57,9 +57,6 @@ sealed class ValueNode<T>(name: String, val value: T, parent: Node?)
         if (this === other) return true
         if (other !is ValueNode<*>) return false
         if (!super.equals(other)) return false
-
-        if (value != other.value) return false
-        if (typeSalt != other.typeSalt) return false
 
         return true
     }

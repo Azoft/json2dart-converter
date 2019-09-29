@@ -26,7 +26,7 @@ class NodeTree {
         }
 
         while (nodeQueue.isNotEmpty()) {
-//            nodeQueue.first.let queueWhile@ { (name, node) ->
+//            nodeQueue.first.let queueWhile@ { (className, node) ->
 //                node.fields().asSequence()
 //                    .mapNotNull { (fieldName, field) ->
 //                        (field as? ObjectNode)
@@ -39,7 +39,7 @@ class NodeTree {
 //                    }
 //
 //                ClassNode(
-//                    name,
+//                    className,
 ////                    node.fieldNames().asSequence()
 ////                        .map { fieldName ->
 ////                            node[fieldName].toPrimitiveNode(fieldName)

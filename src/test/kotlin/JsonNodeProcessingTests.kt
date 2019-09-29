@@ -1,24 +1,25 @@
 import com.azoft.json2dart.delegates.generator.tree.*
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import ideals.TestCollisionResolver
-import ideals.Match
+import ideals.CollisionMatch
+import ideals.SquashMatch
 import org.junit.Test
 import java.io.File
 
-class TreeBuilderTests {
+class JsonNodeProcessingTests {
 
     private val rootNameDefault = "response"
 
     @Test
     fun testTreeBuilderSimple() {
-        val rootNode = extractNodes("$jsonInitialPath/$simpleJson")
+        val rootNode = convertNodes("$jsonInitialPath/$simpleJson")
         rootNode as ClassNode
         assert(rootNode.containsAllPrimitives())
     }
 
     @Test
     fun testTreeBuilderInner() {
-        val rootNode = extractNodes("$jsonInitialPath/$innerObjectJson")
+        val rootNode = convertNodes("$jsonInitialPath/$innerObjectJson")
         rootNode as ClassNode
         assert(rootNode.childs.size == 1)
 
@@ -40,7 +41,7 @@ class TreeBuilderTests {
 
     @Test
     fun testTreeBuilderList() {
-        val rootNode = extractNodes("$jsonInitialPath/$listJson")
+        val rootNode = convertNodes("$jsonInitialPath/$listJson")
         rootNode as ClassNode
         assert(rootNode.childs.find { it !is ListNode } == null)
         rootNode.childs.map { it as ListNode }.apply {
@@ -59,38 +60,64 @@ class TreeBuilderTests {
     fun testCollisionCase() {
         val firstInnerName = "FirstInner"
         val secondInnerName = "SecondInner"
-        val rootNode = extractNodes(
+        val rootNode = convertNodes(
             jsonPath = "$jsonInitialPath/$collisionJson",
             collisionResolver = TestCollisionResolver(
-                listOf(
-                    Match("inner", "inner", firstInnerName, secondInnerName)
+                resolveMatches = listOf(
+                    CollisionMatch("inner", "inner", firstInnerName, secondInnerName)
                 )
             )
         )
         rootNode as ClassNode
         assert(rootNode.containsAllPrimitives())
-        val secondInnerNode = rootNode.childs.find { it.name == secondInnerName }
+        val secondInnerNode = rootNode.childs.find { it.className == secondInnerName }
             ?: throw Exception("Cannot find second inner class node")
         secondInnerNode as ClassNode
 
-        val firstInnerNode = secondInnerNode.childs.find { it.name == firstInnerName }
+        val firstInnerNode = secondInnerNode.childs.find { it.className == firstInnerName }
             ?: throw Exception("Cannot find first inner class node")
 
         firstInnerNode as ClassNode
         firstInnerNode.containsAllPrimitives()
     }
 
-    private fun extractNodes(
+    @Test
+    fun testSquashCase() {
+        val squashResultName = "parent"
+        val leftSquashName = "father"
+        val rightSquashName = "mother"
+        val rootNode = convertNodes(
+            jsonPath = "$jsonInitialPath/$squashJson",
+            collisionResolver = TestCollisionResolver(
+                squashMatches = listOf(
+                    SquashMatch(leftSquashName, rightSquashName, squashResultName)
+                )
+            )
+        )
+
+        rootNode as ClassNode
+        assert(rootNode.childs.size == 6)
+        rootNode.containsAllPrimitives()
+
+        rootNode.childs.find {
+            it is ClassNode && it.className == squashResultName && it.fieldName == leftSquashName
+        }
+
+        rootNode.childs.find {
+            it is ClassNode && it.className == squashResultName && it.fieldName == rightSquashName
+        }
+    }
+
+    private fun convertNodes(
         jsonPath: String,
         rootName: String = rootNameDefault,
         collisionResolver: AbstractCollisionResolver = TestCollisionResolver(listOf())
     ): Node =
-        JsonNodeConverter(
-            collisionResolver
-        ).extractNodes(
-            rootName,
-            jacksonObjectMapper().readTree(File(jsonPath).readText())
-        )
+        JsonNodeConverter(ClassNodeCorrector(collisionResolver))
+            .extractNodes(
+                rootName,
+                jacksonObjectMapper().readTree(File(jsonPath).readText())
+            )
 
     private fun ClassNode.containsAllPrimitives() =
         childs.find { it is NullNode } != null

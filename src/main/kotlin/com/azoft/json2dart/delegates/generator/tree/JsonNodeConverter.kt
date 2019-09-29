@@ -4,30 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode
 
 
 class JsonNodeConverter(
-    private val collisionResolver: AbstractCollisionResolver = AutomaticCollisionResolver()
+    private val classNodeCorrector: ClassNodeCorrector = ClassNodeCorrector()
 ) {
-    fun extractNodes(rootName: String, rootJsonNode: JsonNode, squash: Boolean = false): Node {
 
-        val nameMap = mutableMapOf<String, ClassNode>()
+    fun extractNodes(rootName: String, rootJsonNode: JsonNode): Node {
         return rootJsonNode.convertNode(
             name = rootName,
-            corrector = { newNode ->
-                if (!nameMap.contains(newNode.name)) {
-                    nameMap[newNode.name] = newNode
-                    newNode
-                } else {
-                    val oldNode = nameMap.remove(newNode.name)
-                        ?: return@convertNode newNode
-                    val (oldResolvedName, newResolvedName) = collisionResolver.resolve(oldNode, newNode)
-
-                    oldNode.name = oldResolvedName
-                    newNode.name = newResolvedName
-                    nameMap[oldResolvedName] = oldNode
-                    nameMap[newResolvedName] = newNode
-                    newNode
-                }
-            }
-        )
+            corrector = classNodeCorrector::correct
+        ) as ClassNode
     }
 
     private fun JsonNode.convertNode(
