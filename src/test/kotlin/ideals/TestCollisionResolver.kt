@@ -9,7 +9,7 @@ class TestCollisionResolver(
     private val resolveMatches: List<CollisionMatch> = listOf(),
     private val squashMatches: List<SquashMatch> = listOf()
 ) : AbstractCollisionResolver() {
-    override fun resolve(existingNode: ClassNode, newNode: ClassNode): ResolvedNodeNames {
+    override fun resolveDuplicatedNames(existingNode: ClassNode, newNode: ClassNode): ResolvedNodeNames {
         val firstName = existingNode.className
         val secondName = newNode.className
         return resolveMatches

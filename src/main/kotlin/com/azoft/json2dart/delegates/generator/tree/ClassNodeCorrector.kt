@@ -56,7 +56,7 @@ class ClassNodeCorrector(
         }
 
         nameMap.remove(oldNode.className)
-        val (oldResolvedName, newResolvedName) = collisionResolver.resolve(oldNode, newNode)
+        val (oldResolvedName, newResolvedName) = collisionResolver.resolveDuplicatedNames(oldNode, newNode)
 
         registeredClasses.updateClassName(oldNode, oldResolvedName)
         registeredClasses.updateClassName(newNode, newResolvedName)

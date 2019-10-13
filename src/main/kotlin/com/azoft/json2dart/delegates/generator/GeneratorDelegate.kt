@@ -28,7 +28,7 @@ class GeneratorDelegate(
                     try {
                         DartClassGenerator().generateFromJson(
                             json,
-                            File(event.getData(CommonDataKeys.VIRTUAL_FILE)?.path),
+                            File(event.getData(CommonDataKeys.VIRTUAL_FILE)?.path!!),
                             fileName.takeIf(String::isNotBlank) ?: "response",
                             finalFields
                         )
