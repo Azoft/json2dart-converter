@@ -2,6 +2,8 @@ package com.azoft.json2dart.delegates.generator.tree
 
 import com.azoft.json2dart.delegates.ui.UIDelegate
 import java.lang.StringBuilder
+import java.util.*
+import kotlin.test.todo
 
 typealias ResolvedNodeNames = Pair<String, String>
 typealias NewClassName = String
@@ -21,7 +23,35 @@ class ManualCollisionResolver(
 
     override fun resolveDuplicatedNames(existingNode: ClassNode, newNode: ClassNode): ResolvedNodeNames {
         TODO()
+//        uiDelegate.showCollisionDialog()
     }
+
+    private fun ClassNode.buildCollisionPreview(): String =
+        generateSequence(parent as ClassNode) { it.parent as ClassNode }.toList()
+            // json preview forehead, json preview tail, last index (for inserting target body)
+            .foldRightIndexed(Triple(StringBuilder(), LinkedList<String>(), 0)) { i, parent, collector ->
+                val (forehead, tail) = collector
+                val gap = "\t\t".repeat(i)
+                forehead
+                    .append(gap).append(parent.className).append(" : {\n")
+                    .append(gap).append("...\n")
+
+                tail.add("$gap...\n$gap}\n")
+                collector
+            }.let { (builder, tailList, lastIndex) ->
+                val gap = "\t\t".repeat(lastIndex + 1)
+
+                childs.forEach {
+                    builder.append(gap).append(it.className).append(" : ...\n")
+                }
+
+                tailList.foldRight(builder) { tail, acc ->
+                    acc.append(tail)
+                }
+
+                builder.toString()
+            }
+            .toString()
 }
 
 class AutomaticCollisionResolver: AbstractCollisionResolver() {
@@ -35,7 +65,7 @@ class AutomaticCollisionResolver: AbstractCollisionResolver() {
         val builder = StringBuilder()
         var currentParent = parent
         while (currentParent != null) {
-            builder.append(currentParent.className)
+            builder.append(0, currentParent.className)
             currentParent = currentParent.parent
         }
         return builder.toString()

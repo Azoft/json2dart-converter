@@ -3,12 +3,9 @@ package com.azoft.json2dart.view;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rsyntaxtextarea.Theme;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 
 public class Json2DartForm {
     public JPanel rootView;
@@ -34,16 +31,7 @@ public class Json2DartForm {
     }
 
     private void createUIComponents() {
-        editor = new RSyntaxTextArea();
-        editor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
-        editor.setCodeFoldingEnabled(true);
-        try {
-            Theme theme = Theme.load(getClass().getResourceAsStream(
-                "/org/fife/ui/rsyntaxtextarea/themes/monokai.xml"));
-            theme.apply(editor);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
+        editor = Utils.buildRSyntaxTextArea(getClass());
     }
 
     {
